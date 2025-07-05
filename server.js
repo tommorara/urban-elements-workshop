@@ -51,18 +51,15 @@ connectDB();
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
+api.use('/api/products', productRoutes);
 app.use('/api/custom-requests', customRequestRoutes);
 
 // Basic Root Route
 app.get('/', (req, res) => {
-  res.send('Urban Elements Workshop Backend API');
+	res.send('Urban Elements Workshop Backend API');
 });
 
-// --- Error Handling Middleware (Optional but recommended) ---
-// You can add more specific error handlers here if needed
-
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, (error) = {
+	console.log(`Server running on port ${PORT}`);
 });
