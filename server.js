@@ -5,6 +5,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -13,6 +15,7 @@ const customRequestRoutes = require('./routes/customRequestRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const path = require("path");
 
 // --- Middleware ---
 // Enable CORS for all origins (adjust in production)
@@ -30,10 +33,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // --- Database Connection ---
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
+    await mongoose.connect(process.env."mongodb+srv://kevcode:<kevcode@2030>@cluster0.m7po6dv.mongodb.net/urban-elements-workshop", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      // These options are deprecated and can be removed in newer Mongoose versions
       // useCreateIndex: true,
       // useFindAndModify: false,
     });
