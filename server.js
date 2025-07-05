@@ -15,7 +15,6 @@ const customRequestRoutes = require('./routes/customRequestRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const path = require("path");
 
 // --- Middleware ---
 // Enable CORS for all origins (adjust in production)
@@ -31,23 +30,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- Database Connection ---
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env."mongodb+srv://kevcode:<kevcode@2030>@cluster0.m7po6dv.mongodb.net/urban-elements-workshop", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // useCreateIndex: true,
-      // useFindAndModify: false,
-    });
-    console.log('MongoDB Connected...');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    // Exit process with failure
-    process.exit(1);
-  }
-};
+const username = encodeURIComponent(process.env.DB_USER);
+const password = encodeURIComponent(process.env.DB_PASS);
+const dbName = process.env.DB_NAME;
 
-connectDB();
+const uri = `mongodb+srv://${username}:${password}@cluster0.m7po6dv.mongodb.net/${dbName}`;
+
+mongoose.connect(uri, {
+	  useNewUrlParser: true,
+	  useUnifiedTopology: true,
+})
+.then(() => console.log("MongoDB connected"))
+.catch((err) => console.error("Connection error:", err));
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
