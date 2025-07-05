@@ -1,19 +1,12 @@
 {
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.0.1",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.1",
-    "multer": "^2.0.1"
-  },
   "name": "urban-elements-workshop",
   "version": "1.0.0",
   "description": "an e-commerce website",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +17,19 @@
   "bugs": {
     "url": "https://github.com/tommorara/urban-elements-workshop/issues"
   },
-  "homepage": "https://github.com/tommorara/urban-elements-workshop#readme"
+  "homepage": "https://github.com/tommorara/urban-elements-workshop#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.16.1",
+    "multer": "^2.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "keywords": []
 }

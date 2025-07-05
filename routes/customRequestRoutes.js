@@ -1,5 +1,6 @@
 // routes/customRequestRoutes.js
 
+const adminMiddleware = require('../middleware/adminMiddleware');
 const express = require('express');
 const router = express.Router();
 const customRequestController = require('../controllers/customRequestController');
