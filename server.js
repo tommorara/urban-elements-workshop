@@ -1,66 +1,51 @@
 // server.js
 
-require('dotenv').config(); // Load environment variables from .env file
+// 1. Load environment variables
+require('dotenv').config();
+
+// 2. Import core packages
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
-// Import routes
+// 3. Import custom modules
+const connectDB = require('./config/db');
+const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const customRequestRoutes = require('./routes/customRequestRoutes');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// --- Middleware ---
-// Enable CORS for all origins (adjust in production)
-app.use(cors());
-
-// Parse JSON request bodies
-app.use(express.json());
-
-// Parse URL-encoded request bodies
-app.use(express.urlencoded({ extended: true }));
-
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// --- Database Connection ---
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // These options are deprecated and can be removed in newer Mongoose versions
-      // useCreateIndex: true,
-      // useFindAndModify: false,
-    });
-    console.log('MongoDB Connected...');
-  } catch (err) {
-    console.error('MongoDB connection error:', err.message);
-    // Exit process with failure
-    process.exit(1);
-  }
-};
-
+// 4. Connect to MongoDB
 connectDB();
 
-// --- Routes ---
+// 5. Initialize Express app
+const app = express();
+
+// Define PORT (from .env or default to 5000)
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0'; // Accept connections from any IP
+
+// 6. Global middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 7. Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 8. Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes); 
 app.use('/api/products', productRoutes);
 app.use('/api/custom-requests', customRequestRoutes);
 
-// Basic Root Route
+// 9. Default test route
 app.get('/', (req, res) => {
-  res.send('Urban Elements Workshop Backend API');
+  res.send('🛠️ Urban Elements Workshop Backend API is running');
 });
 
-// --- Error Handling Middleware (Optional but recommended) ---
-// You can add more specific error handlers here if needed
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// 10. Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
+
