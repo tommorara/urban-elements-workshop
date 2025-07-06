@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Product (Admin Only)</title>
+</head>
+<body>
+  <h2>Admin: Create New Product</h2>
+
+  <form id="productForm">
+    <input type="text" name="name" placeholder="Product Name" required /><br><br>
+    <textarea name="description" placeholder="Product Description" required></textarea><br><br>
+    <input type="number" name="price" placeholder="Price (Ksh)" required /><br><br>
+    <input type="text" name="category" placeholder="Category (e.g., Living Room)" required /><br><br>
+    <input type="text" name="material" placeholder="Materials (comma-separated)" required /><br><br>
+    <input type="number" name="stock" placeholder="Stock" required /><br><br>
+    <input type="file" name="productImage" accept="image/*" required /><br><br>
+    <input type="text" id="token" placeholder="Paste Admin JWT Token here" required /><br><br>
+    <button type="submit">Create Product</button>
+  </form>
+
+  <div id="response" style="margin-top: 20px;"></div>
+
+  <script>
+    document.getElementById('productForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Convert comma-separated materials into array
+      const materials = formData.get('material').split(',').map(m => m.trim());
+      formData.delete('material');
+      materials.forEach(m => formData.append('material[]', m));
+
+      // Prepare token
+      const token = document.getElementById('token').value;
+
+      try {
+        const res = await fetch('http://localhost:5000/api/products', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Something went wrong');
+        }
+      } catch (err) {
+        document.getElementById('response').innerText = `❌ Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
+

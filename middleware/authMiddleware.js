@@ -1,13 +1,16 @@
 // middleware/authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Assuming you have a User model
+const User = require('../models/User');
 
+// Middleware: Protect route by checking token
 const protect = async (req, res, next) => {
   let token;
 
-  // Check for token in Authorization header (Bearer TOKEN)
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
     try {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
@@ -15,24 +18,39 @@ const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token payload (assuming user ID is stored in payload)
-      // Exclude password from the user object
+      // Get user from decoded token (exclude password)
       req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user) {
-        return res.status(401).json({ message: 'Not authorized, user not found' });
+        return res
+          .status(401)
+          .json({ message: 'Not authorized, user not found' });
       }
 
-      next(); // Proceed to the next middleware or route handler
+      next();
     } catch (error) {
       console.error('Token verification failed:', error.message);
-      return res.status(401).json({ message: 'Not authorized, token failed' });
+      return res
+        .status(401)
+        .json({ message: 'Not authorized, token failed' });
     }
   }
 
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token provided' });
+    return res
+      .status(401)
+      .json({ message: 'Not authorized, no token provided' });
   }
 };
 
-module.exports = protect;
+// Middleware: Check if user is admin
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Forbidden: Admins only' });
+  }
+};
+
+module.exports = { protect, isAdmin };
+

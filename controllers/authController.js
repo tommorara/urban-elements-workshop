@@ -1,39 +1,33 @@
-// controllers/authController.js
-
-const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-// Helper function to sign JWT
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
-};
+const User = require('../models/User');
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
-exports.registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-
+exports.register = async (req, res) => {
   try {
+    const { name, email, password } = req.body;
+
     // Check if user already exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists with this email' });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already in use.' });
     }
 
-    // Create new user
+    // Create user - let schema handle password hashing
     const user = await User.create({
       name,
       email,
-      password, // Password will be hashed by the 'pre-save' hook in the model
+      password, // Plain, model will hash it
     });
 
-    // For registration, we might not immediately return a token.
-    // The user would typically need to log in after registering.
-    // If you want instant login after registration:
-    const token = signToken(user._id);
+    // Create token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
     res.status(201).json({
       message: 'User registered successfully',
@@ -43,44 +37,41 @@ exports.registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token, // Optionally return token immediately
+      token,
     });
-
-  } catch (error) {
-    console.error('Registration error:', error.message);
+  } catch (err) {
+    console.error('Registration error:', err.message);
     res.status(500).json({ message: 'Server error during registration' });
   }
 };
 
-// @desc    Login a user
+// @desc    Log in a user
 // @route   POST /api/auth/login
 // @access  Public
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Please provide email and password' });
-  }
-
+exports.login = async (req, res) => {
   try {
-    // Check for user
-    const user = await User.findOne({ email }).select('+password'); // Select password to compare
+    const { email, password } = req.body;
 
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // Check password
+    // Compare passwords using model method
     const isMatch = await user.comparePassword(password);
-
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password.' });
     }
 
-    // Generate token
-    const token = signToken(user._id);
+    // Create JWT
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
 
-    res.status(200).json({
+    res.json({
       message: 'Login successful',
       user: {
         id: user._id,
@@ -90,25 +81,22 @@ exports.loginUser = async (req, res) => {
       },
       token,
     });
-
-  } catch (error) {
-    console.error('Login error:', error.message);
+  } catch (err) {
+    console.error('Login error:', err.message);
     res.status(500).json({ message: 'Server error during login' });
   }
 };
 
-// @desc    Get logged-in user info
-// @route   GET /api/auth/me
-// @access  Private
-exports.getCurrentUser = async (req, res) => {
-  // req.user is populated by the authMiddleware
-  if (!req.user) {
-    return res.status(401).json({ message: 'Not authenticated' });
+// @desc    Get all users
+// @route   GET /api/auth/users
+// @access  Public (make private later)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password'); // Don’t expose password hashes
+    res.json(users);
+  } catch (err) {
+    console.error('Get users error:', err.message);
+    res.status(500).json({ message: 'Server error while fetching users' });
   }
-  res.status(200).json({
-    id: req.user._id,
-    name: req.user.name,
-    email: req.user.email,
-    role: req.user.role,
-  });
 };
+

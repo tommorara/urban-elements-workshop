@@ -2,22 +2,28 @@
 
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
-const authMiddleware = require('../middleware/authMiddleware'); // For protecting routes
+
+// Import authentication controller functions
+const {
+  register,
+  login,
+  getAllUsers
+} = require('../controllers/authController');
 
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
-router.post('/register', authController.registerUser);
+router.post('/register', register);
 
 // @route   POST /api/auth/login
-// @desc    Login a user and get a JWT
+// @desc    Log in a user
 // @access  Public
-router.post('/login', authController.loginUser);
+router.post('/login', login);
 
-// @route   GET /api/auth/me
-// @desc    Get logged-in user info
-// @access  Private
-router.get('/me', authMiddleware, authController.getCurrentUser);
+// @route   GET /api/auth/users
+// @desc    Get all users (for admin or dev testing)
+// @access  Public (or protect with middleware later)
+router.get('/users', getAllUsers);
 
 module.exports = router;
+
