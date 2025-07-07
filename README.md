@@ -134,13 +134,7 @@ node seeds/seedProducts.js
 Backend Developer | ALX SWE Program
 📍 Nairobi, Kenya
 [GitHub](https://github.com/tommorara) • [LinkedIn](https://linkedin.com/in/tom-nyabuto)
-** Keving Mabonga**
+**Keving Mabonga**
 Backend Developer | ALX SWE Program
 
 ---
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
-````
