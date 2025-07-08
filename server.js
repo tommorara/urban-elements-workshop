@@ -79,26 +79,56 @@ app.post('/upload', upload.single('products'), (req, res) => {
  // File uploaded successfully
   res.status(200).json({ message: 'File uploaded successfully', filePath: `/uploads/${req.file.filename}` });
 
-  // scheme for the uploaded file or products on mongoDB
-  const products = new mongoose.model({
-    id:{ type: Number, required: true },
-    name:{ type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true },
-    images: { type: [String], required: true }, 
-    date: {type: Date, default: Date.now}
+ 
+ // scheme for the uploaded file or products on mongoDB
+const ProductSchema = new mongoose.Schema({
+  name: String,
+  description: String,
+  price: Number,
+  image: String,
+});
 
-  });
+const OrderSchema = new mongoose.Schema({
+  fullName: String,
+  email: String,
+  phone: String,
+  location: String,
+  date: { type: Date, default: Date.now }
+});
 
-// Add products to the database
-app.post('/addproducts', async (req, res) => {
-  const product = new product, { id, name, description, price, images } = req.body;
-})
-  try {
-    await product.save();
-    res.status(201).json({ message: 'Product added successfully', product });
-  } catch (error) {
-    res.status(500).json({ message: 'Error adding product', error });
+const UserSchema = new mongoose.Schema({
+  fullName: String,
+  email: String,
+});
+
+const Product = mongoose.model('Product', ProductSchema);
+const Order = mongoose.model('Order', OrderSchema);
+const User = mongoose.model('User', UserSchema);
+
+// Get all products
+app.get('/api/products', async (req, res) => {
+  const products = await Product.find();
+  res.json(products);
+});
+
+// Get all orders
+app.get('/api/orders', async (req, res) => {
+  const orders = await Order.find();
+  res.json(orders);
+});
+
+// Get all users
+app.get('/api/users', async (req, res) => {
+  const users = await User.find();
+  res.json(users);
+});
+
+// Add product
+app.post('/api/products', async (req, res) => {
+  const product = new Product(req.body);
+  await product.save();
+  res.status(201).json(product);
+});
 
 // API for deleting a product from the database
 app.delete('/deleteproduct/:id', async (req, res) => {
