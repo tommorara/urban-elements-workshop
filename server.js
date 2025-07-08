@@ -90,6 +90,16 @@ app.post('/upload', upload.single('products'), (req, res) => {
 
   });
 
+// Add products to the database
+app.post('/addproducts', async (req, res) => {
+  const product = new product, { id, name, description, price, images } = req.body;
+})
+  try {
+    await product.save();
+    res.status(201).json({ message: 'Product added successfully', product });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding product', error });
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
