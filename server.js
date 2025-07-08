@@ -56,6 +56,15 @@ app.post('/signup', (req, res) => {
   res.status(200).json({ message: 'Signup successful' });
 });
 
+// Image storage setup
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`); 
+  },
+})
+
+const upload = multer({ storage: storage });
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
