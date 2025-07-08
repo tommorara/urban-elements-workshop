@@ -100,6 +100,22 @@ app.post('/addproducts', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error adding product', error });
 
+// API for deleting a product from the database
+app.delete('/deleteproduct/:id', async (req, res) => {
+ await product.findByIdAndDelete(req.params.id);
+  res.status(200).json({ message: 'Product deleted successfully' });
+})
+  
+// API for getting all products from the database
+app.get('/allproducts', async (req, res) => {
+  try {
+    const products = await product.find({});
+    res.status(200).json(products);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching products', error });
+  }
+});
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
