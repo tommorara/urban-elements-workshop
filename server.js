@@ -76,6 +76,20 @@ app.post('/upload', upload.single('products'), (req, res) => {
   console.log('File uploaded:', req.file);
 });
 
+ // File uploaded successfully
+  res.status(200).json({ message: 'File uploaded successfully', filePath: `/uploads/${req.file.filename}` });
+
+  // scheme for the uploaded file or products on mongoDB
+  const products = new mongoose.model({
+    id:{ type: Number, required: true },
+    name:{ type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    images: { type: [String], required: true }, 
+    date: {type: Date, default: Date.now}
+
+  });
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
