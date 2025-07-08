@@ -65,6 +65,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// to use all the images in the products field
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Image upload endpoint
+app.post('/upload', upload.single('products'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+  console.log('File uploaded:', req.file);
+});
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
