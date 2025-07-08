@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
     trim: true,
   },
   material: {
-    type: [String], // e.g., ['Steel', 'Wood', 'Glass']
+    type: [String], // e.g., ['Steel', 'Wood']
     required: [true, 'Product material is required'],
   },
   imageUrl: {
@@ -33,7 +33,7 @@ const productSchema = new mongoose.Schema({
   },
   stock: {
     type: Number,
-    default: 0, // Assuming stock management, or can be null for custom orders
+    default: 0,
     min: 0,
   },
   createdAt: {
@@ -46,10 +46,5 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-// Update 'updatedAt' timestamp before saving
-productSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+module.exports = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-module.exports = mongoose.model('Product', productSchema);

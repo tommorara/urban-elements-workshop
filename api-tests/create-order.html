@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Order (User)</title>
+</head>
+<body>
+  <h2>User: Place a New Order</h2>
+
+  <form id="orderForm">
+    <input type="text" name="productId" placeholder="Product ID" required /><br><br>
+    <input type="number" name="quantity" placeholder="Quantity" required min="1" /><br><br>
+    <input type="text" name="deliveryAddress" placeholder="Delivery Address" required /><br><br>
+    <textarea name="note" placeholder="Optional Note (e.g., delivery instructions)"></textarea><br><br>
+    <button type="submit">Place Order</button>
+  </form>
+
+  <div id="response" style="margin-top: 20px;"></div>
+
+  <script>
+    document.getElementById('orderForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const token = localStorage.getItem('userToken'); // userToken should be set after login
+      if (!token) {
+        alert('You must be logged in to place an order.');
+        return;
+      }
+
+      const form = e.target;
+      const orderData = {
+        productId: form.productId.value,
+        quantity: parseInt(form.quantity.value),
+        deliveryAddress: form.deliveryAddress.value,
+        note: form.note.value
+      };
+
+      try {
+        const res = await fetch('http://localhost:5000/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(orderData)
+        });
+
+        const data = await res.json();
+        document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+
+        if (!res.ok) {
+          throw new Error(data.message || 'Order failed');
+        }
+      } catch (err) {
+        document.getElementById('response').innerText = `❌ Error: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
+
