@@ -1,109 +1,88 @@
 // server.js
 
-// 1. Load environment variables
 require('dotenv').config();
 
-// 2. Import core packages
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
+const multer = require('multer');
 
-// 3. Import custom modules
+// Connect to MongoDB
 const connectDB = require('./config/db');
+connectDB();
+
+// Import Mongoose models
+const Product = require('./models/Product');
+const Order = require('./models/Order');
+const User = require('./models/User');
+
+// Import routes
 const adminRoutes = require('./routes/adminRoutes');
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const customRequestRoutes = require('./routes/customRequestRoutes');
 
-// 4. Connect to MongoDB
-connectDB();
-
-// 5. Initialize Express app
+// Initialize app
 const app = express();
-
-// Define PORT (from .env or default to 5000)
 const PORT = process.env.PORT || 5000;
-const HOST = '0.0.0.0'; // Accept connections from any IP
 
-// 6. Global middleware
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 7. Serve uploaded images statically
+// Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 8. Routes
+// App routes
 app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes); 
+app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/custom-requests', customRequestRoutes);
 
-// 9. Default test route
+// Root route
 app.get('/', (req, res) => {
   res.send('🛠️ Urban Elements Workshop Backend API is running');
 });
 
-// signup.html
+// Signup endpoint (example)
 app.post('/signup', (req, res) => {
   const { fullName, email, confirmEmail } = req.body;
-  
+
   if (email !== confirmEmail) {
     return res.status(400).json({ message: 'Emails do not match' });
   }
-  console.log('User signed up:', req.body);
 
+  console.log('User signed up:', req.body);
   res.status(200).json({ message: 'Signup successful' });
 });
 
-// Image storage setup
+// Multer storage setup
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`); 
+    cb(null, 'uploads/');
   },
-})
+  filename: (req, file, cb) => {
+    cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
-
-// to use all the images in the products field
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Image upload endpoint
+// File upload endpoint
 app.post('/upload', upload.single('products'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
+
   console.log('File uploaded:', req.file);
+  res.status(200).json({
+    message: 'File uploaded successfully',
+    filePath: `/uploads/${req.file.filename}`,
+  });
 });
 
- // File uploaded successfully
-  res.status(200).json({ message: 'File uploaded successfully', filePath: `/uploads/${req.file.filename}` });
-
- 
- // scheme for the uploaded file or products on mongoDB
-const ProductSchema = new mongoose.Schema({
-  name: String,
-  description: String,
-  price: Number,
-  image: String,
-});
-
-const OrderSchema = new mongoose.Schema({
-  fullName: String,
-  email: String,
-  phone: String,
-  location: String,
-  date: { type: Date, default: Date.now }
-});
-
-const UserSchema = new mongoose.Schema({
-  fullName: String,
-  email: String,
-});
-
-const Product = mongoose.model('Product', ProductSchema);
-const Order = mongoose.model('Order', OrderSchema);
-const User = mongoose.model('User', UserSchema);
+// === Direct API Endpoints ===
 
 // Get all products
 app.get('/api/products', async (req, res) => {
@@ -123,30 +102,30 @@ app.get('/api/users', async (req, res) => {
   res.json(users);
 });
 
-// Add product
+// Add new product
 app.post('/api/products', async (req, res) => {
   const product = new Product(req.body);
   await product.save();
   res.status(201).json(product);
 });
 
-// API for deleting a product from the database
+// Delete a product
 app.delete('/deleteproduct/:id', async (req, res) => {
- await product.findByIdAndDelete(req.params.id);
+  await Product.findByIdAndDelete(req.params.id);
   res.status(200).json({ message: 'Product deleted successfully' });
-})
-  
-// API for getting all products from the database
+});
+
+// Alternative get all products
 app.get('/allproducts', async (req, res) => {
   try {
-    const products = await product.find({});
+    const products = await Product.find({});
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching products', error });
   }
 });
 
-// 10. Start server
+// Start the server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
