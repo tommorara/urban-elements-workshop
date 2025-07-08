@@ -44,6 +44,18 @@ app.get('/', (req, res) => {
   res.send('🛠️ Urban Elements Workshop Backend API is running');
 });
 
+// signup.html
+app.post('/signup', (req, res) => {
+  const { fullName, email, confirmEmail } = req.body;
+  
+  if (email !== confirmEmail) {
+    return res.status(400).json({ message: 'Emails do not match' });
+  }
+  console.log('User signed up:', req.body);
+
+  res.status(200).json({ message: 'Signup successful' });
+});
+
 // 10. Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
