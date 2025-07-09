@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const products = await res.json();
 
     if (!Array.isArray(products)) {
-      container.innerHTML = '<p>⚠️ Error: Unexpected response format.</p>';
+      container.innerHTML = '<p>❌ Error: Unexpected response format.</p>';
       return;
     }
 
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    // Render each product
     products.forEach(product => {
       const card = document.createElement('div');
       card.className = 'product-card';
@@ -27,10 +28,60 @@ document.addEventListener('DOMContentLoaded', async () => {
           <p><strong>Category:</strong> ${product.category}</p>
           <p><strong>Materials:</strong> ${Array.isArray(product.material) ? product.material.join(', ') : product.material}</p>
           <p class="price">Ksh ${product.price.toLocaleString()}</p>
+          <button class="order-btn">Order</button>
         </div>
       `;
 
+      // Add order button click listener
+      const orderBtn = card.querySelector('.order-btn');
+      orderBtn.addEventListener('click', () => {
+        document.getElementById('order-modal').classList.remove('hidden');
+        document.getElementById('order-product').value = product.name;
+      });
+
       container.appendChild(card);
+    });
+
+    // Modal logic
+    const modal = document.getElementById('order-modal');
+    const closeBtn = document.querySelector('.close-btn');
+
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.add('hidden');
+      }
+    });
+
+    // Handle form submit
+    document.getElementById('order-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const order = {
+        product: document.getElementById('order-product').value,
+        name: document.getElementById('order-name').value,
+        email: document.getElementById('order-email').value,
+        address: document.getElementById('order-address').value,
+        quantity: parseInt(document.getElementById('order-quantity').value, 10),
+      };
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order),
+        });
+
+        if (!response.ok) throw new Error('Order submission failed');
+
+        alert('✅ Order submitted successfully!');
+        modal.classList.add('hidden');
+        e.target.reset();
+      } catch (error) {
+        alert('❌ Failed to submit order.');
+        console.error(error);
+      }
     });
 
   } catch (err) {
