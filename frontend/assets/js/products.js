@@ -61,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const order = {
         product: document.getElementById('order-product').value,
         name: document.getElementById('order-name').value,
+        phone: document.getElementById('order-phone').value,
         email: document.getElementById('order-email').value,
         address: document.getElementById('order-address').value,
         quantity: parseInt(document.getElementById('order-quantity').value, 10),
@@ -89,4 +90,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = '<p>❌ Failed to load products. Please try again later.</p>';
   }
 });
-
+ 
