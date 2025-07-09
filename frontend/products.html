@@ -15,6 +15,24 @@
   <main id="product-list" class="product-list">
     <!-- Products will be loaded here -->
   </main>
+  
+  <!-- Order Modal -->
+<div id="order-modal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-btn">&times;</span>
+    <h2>Place Order</h2>
+    <form id="order-form">
+      <input type="text" id="order-product" name="product" readonly />
+
+      <input type="text" id="order-name" name="name" placeholder="Your Name" required />
+      <input type="email" id="order-email" name="email" placeholder="Email Address" required />
+      <textarea id="order-address" name="address" placeholder="Delivery Address" required></textarea>
+      <input type="number" id="order-quantity" name="quantity" min="1" value="1" required />
+
+      <button type="submit">Submit Order</button>
+    </form>
+  </div>
+</div>
 
   <footer class="footer">
     <p>&copy; 2025 Urban Elements Workshop | Nairobi, Kenya</p>
