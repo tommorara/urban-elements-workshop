@@ -43,16 +43,16 @@ exports.submitCustomRequest = async (req, res) => {
   }
 };
 
-// @desc    Get all custom requests
-// @route   GET /api/custom-requests
-// @access  Private (Admin)
-exports.getAllCustomRequests = async (req, res) => {
+// @desc    Get custom requests made by the logged-in user
+// @route   GET /api/custom-requests/user
+// @access  Private
+exports.getUserRequests = async (req, res) => {
   try {
-    const requests = await CustomRequest.find().sort({ createdAt: -1 });
+    const requests = await CustomRequest.find({ email: req.user.email }).sort({ createdAt: -1 });
     res.status(200).json(requests);
-  } catch (error) {
-    console.error('Get all custom requests error:', error.message);
-    res.status(500).json({ message: 'Server error retrieving custom requests' });
+  } catch (err) {
+    console.error('Error fetching user requests:', err.message);
+    res.status(500).json({ message: 'Failed to get your custom requests' });
   }
 };
 
