@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
+const { protect } = require('../middleware/authMiddleware');
 
-// Public: Submit an order
-router.post('/', orderController.createOrder);
+// Authenticated: Submit an order
+router.post('/', protect, orderController.createOrder);
 
-// Admin: Get all orders
-router.get('/', orderController.getAllOrders); // protect with middleware later
+// Public or admin: Get all orders (add admin middleware later)
+router.get('/', orderController.getAllOrders);
 
 module.exports = router;
-
