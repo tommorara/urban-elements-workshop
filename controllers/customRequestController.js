@@ -6,23 +6,21 @@ const path = require('path');
 
 // @desc    Submit a custom design request
 // @route   POST /api/custom-requests
-// @access  Public
+// @access  Private (requires login)
 exports.submitCustomRequest = async (req, res) => {
-  const { name, email, phone, message, projectDetails } = req.body;
+  const { itemName, projectDetails, materials } = req.body;
 
-  // Multer stores file info in req.files (array)
   const uploadedImagePaths = req.files ? req.files.map(file =>
     `${req.protocol}://${req.get('host')}/uploads/custom-requests/${file.filename}`
   ) : [];
 
   try {
     const request = await CustomRequest.create({
-      name,
-      email,
-      phone,
-      message,
+      user: req.user._id,
+      itemName,
       projectDetails,
-      imageUploads: uploadedImagePaths,
+      materials: Array.isArray(materials) ? materials : [materials],
+      referenceImageUrls: uploadedImagePaths,
     });
 
     res.status(201).json({
@@ -31,14 +29,16 @@ exports.submitCustomRequest = async (req, res) => {
     });
   } catch (error) {
     console.error('Submit custom request error:', error.message);
-    // Clean up uploaded files if creation fails
+
+    // Cleanup uploaded files if saving failed
     if (req.files) {
       req.files.forEach(file => {
-        fs.unlink(file.path, (err) => {
+        fs.unlink(file.path, err => {
           if (err) console.error('Error deleting partial upload:', err);
         });
       });
     }
+
     res.status(400).json({ message: error.message });
   }
 };
@@ -48,7 +48,7 @@ exports.submitCustomRequest = async (req, res) => {
 // @access  Private
 exports.getUserRequests = async (req, res) => {
   try {
-    const requests = await CustomRequest.find({ email: req.user.email }).sort({ createdAt: -1 });
+    const requests = await CustomRequest.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.status(200).json(requests);
   } catch (err) {
     console.error('Error fetching user requests:', err.message);
@@ -90,11 +90,8 @@ exports.updateCustomRequestStatus = async (req, res) => {
   try {
     const request = await CustomRequest.findByIdAndUpdate(
       req.params.id,
-      { status: status },
-      {
-        new: true,
-        runValidators: true,
-      }
+      { status },
+      { new: true, runValidators: true }
     );
 
     if (!request) {
@@ -121,36 +118,23 @@ exports.deleteCustomRequest = async (req, res) => {
       return res.status(404).json({ message: 'Custom request not found' });
     }
 
-    // Optional: Delete associated image files from the server
-    if (request.imageUploads && request.imageUploads.length > 0) {
-      request.imageUploads.forEach(imageUrl => {
+    // Delete associated image files from the server
+    if (request.referenceImageUrls && request.referenceImageUrls.length > 0) {
+      request.referenceImageUrls.forEach(imageUrl => {
         const imageFileName = path.basename(imageUrl);
-        // Determine if it's a product image or custom request image based on URL structure
-        let dir = '';
-        if (imageUrl.includes('/uploads/products/')) {
-            dir = 'products';
-        } else if (imageUrl.includes('/uploads/custom-requests/')) {
-            dir = 'custom-requests';
-        }
+        const imagePath = path.join(__dirname, '../uploads/custom-requests', imageFileName);
 
-        if (dir) {
-            const imagePath = path.join(__dirname, `../uploads/${dir}`, imageFileName);
-            fs.access(imagePath, fs.constants.F_OK, (err) => {
-                if (err) {
-                    console.warn(`Image file not found for deletion: ${imagePath}`);
-                } else {
-                    fs.unlink(imagePath, (unlinkErr) => {
-                        if (unlinkErr) {
-                            console.error('Error deleting custom request image:', unlinkErr);
-                        }
-                    });
-                }
+        fs.access(imagePath, fs.constants.F_OK, err => {
+          if (!err) {
+            fs.unlink(imagePath, unlinkErr => {
+              if (unlinkErr) console.error('Error deleting image:', unlinkErr);
             });
-        }
+          }
+        });
       });
     }
 
-    await request.remove(); // Or CustomRequest.findByIdAndDelete(requestId);
+    await request.deleteOne();
 
     res.status(200).json({ message: 'Custom request deleted successfully' });
   } catch (error) {
