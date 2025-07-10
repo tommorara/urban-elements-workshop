@@ -7,33 +7,47 @@
   <link rel="stylesheet" href="assets/css/products.css" />
 </head>
 <body>
-  <header class="header">
-    <h1>Our Products</h1>
-    <p>Handcrafted with wood, steel, glass, and mirrors</p>
-  </header>
+  <div class="page-wrapper">
 
-  <main id="product-list" class="product-list">
-    <!-- Products will be loaded here -->
-  </main>
-  
-  <!-- Order Modal -->
-<div id="order-modal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <h2>Place Order</h2>
-    <form id="order-form">
-      <input type="text" id="order-product" name="product" readonly />
-      <input type="text" id="order-name" name="name" placeholder="Your Name" required />
-      <input type="tel" id="order-phone" name="phone" placeholder="07XXXXXXXX" required />
-      <input type="email" id="order-email" name="email" placeholder="Email Address" required />
-      <textarea id="order-address" name="address" placeholder="Delivery Address" required></textarea>
-      <input type="number" id="order-quantity" name="quantity" min="1" value="1" required />
-      <button type="submit">Submit Order</button>
+    <!-- Unified Header -->
+    <header class="header">
+      <h1>Urban Elements</h1>
+      <p>Furniture crafted with wood, steel, mirrors, and glass</p>
+      <nav class="nav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html" class="active">Products</a></li>
+          <li><a href="custom.html">Custom Orders</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </header>
 
-    </form>
+    <!-- Product Grid -->
+    <main id="product-list" class="product-list">
+      <!-- Products will be loaded here dynamically -->
+    </main>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Place Order</h2>
+        <form id="order-form">
+          <input type="text" id="order-product" name="product" readonly />
+          <input type="text" id="order-name" name="name" placeholder="Your Name" required />
+          <input type="tel" id="order-phone" name="phone" placeholder="07XXXXXXXX" required />
+          <input type="email" id="order-email" name="email" placeholder="Email Address" required />
+          <textarea id="order-address" name="address" placeholder="Delivery Address" required></textarea>
+          <input type="number" id="order-quantity" name="quantity" min="1" value="1" required />
+          <button type="submit">Submit Order</button>
+        </form>
+      </div>
+    </div>
+
   </div>
-</div>
 
+  <!-- Sticky Footer -->
   <footer class="footer">
     <p>&copy; 2025 Urban Elements Workshop | Nairobi, Kenya</p>
   </footer>
@@ -41,4 +55,3 @@
   <script src="assets/js/products.js"></script>
 </body>
 </html>
-
