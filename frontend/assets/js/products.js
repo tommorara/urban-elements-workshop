@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.getElementById('product-list');
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
 
   try {
     const res = await fetch('/api/products');
@@ -15,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    // Render each product
+    // Render product cards
     products.forEach(product => {
       const card = document.createElement('div');
       card.className = 'product-card';
@@ -32,58 +34,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `;
 
-      // Add order button click listener
-      const orderBtn = card.querySelector('.order-btn');
-      orderBtn.addEventListener('click', () => {
+      card.querySelector('.order-btn').addEventListener('click', () => {
+        if (!token) {
+          toggleAuthModal(true); // show login/register modal
+          return;
+        }
+
+        // Show order modal and autofill
         document.getElementById('order-modal').classList.remove('hidden');
         document.getElementById('order-product').value = product.name;
+
+        // Autofill and hide name/email for logged-in users
+        if (user) {
+          document.getElementById('order-name').value = user.name;
+          document.getElementById('order-email').value = user.email;
+          document.getElementById('order-name-wrapper').style.display = 'none';
+          document.getElementById('order-email-wrapper').style.display = 'none';
+        } else {
+          document.getElementById('order-name').value = '';
+          document.getElementById('order-email').value = '';
+          document.getElementById('order-name-wrapper').style.display = 'block';
+          document.getElementById('order-email-wrapper').style.display = 'block';
+        }
       });
 
       container.appendChild(card);
     });
 
-    // Modal logic
+    // Modal close
     const modal = document.getElementById('order-modal');
     const closeBtn = document.querySelector('.close-btn');
-
     closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
-
     window.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.add('hidden');
-      }
+      if (e.target === modal) modal.classList.add('hidden');
     });
 
-    // Handle form submit
+    // Submit order
     document.getElementById('order-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const order = {
+      const payload = {
         product: document.getElementById('order-product').value,
-        name: document.getElementById('order-name').value,
         phone: document.getElementById('order-phone').value,
-        email: document.getElementById('order-email').value,
         address: document.getElementById('order-address').value,
         quantity: parseInt(document.getElementById('order-quantity').value, 10),
       };
 
-      console.log("Submitting order:", order);
+      // Add name/email for guests
+      if (!token || !user) {
+        payload.name = document.getElementById('order-name').value;
+        payload.email = document.getElementById('order-email').value;
+      }
 
       try {
         const response = await fetch('/api/orders', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(order),
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify(payload),
         });
 
-        if (!response.ok) throw new Error('Order submission failed');
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('❌ ' + (data.message || 'Order submission failed.'));
+          return;
+        }
 
         alert('✅ Order submitted successfully!');
         modal.classList.add('hidden');
         e.target.reset();
-      } catch (error) {
-        alert('❌ Failed to submit order.');
-        console.error(error);
+      } catch (err) {
+        console.error('Submit error:', err);
+        alert('❌ Failed to connect to server.');
       }
     });
 
@@ -92,4 +117,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = '<p>❌ Failed to load products. Please try again later.</p>';
   }
 });
- 
