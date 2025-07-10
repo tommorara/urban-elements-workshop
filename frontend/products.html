@@ -4,54 +4,75 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Our Products | Urban Elements Workshop</title>
+  <link rel="stylesheet" href="assets/css/index.css" />
   <link rel="stylesheet" href="assets/css/products.css" />
 </head>
 <body>
   <div class="page-wrapper">
-
-    <!-- Unified Header -->
-    <header class="header">
-      <h1>Urban Elements</h1>
-      <p>Furniture crafted with wood, steel, mirrors, and glass</p>
-      <nav class="nav">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html" class="active">Products</a></li>
-          <li><a href="custom.html">Custom Orders</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
+    <!-- Shared Header (loaded via partial) -->
+    <div id="global-header"></div>
 
     <!-- Product Grid -->
     <main id="product-list" class="product-list">
-      <!-- Products will be loaded here dynamically -->
+      <!-- Products will be injected here dynamically -->
     </main>
 
-    <!-- Order Modal -->
+    <!-- Product Order Modal -->
     <div id="order-modal" class="modal hidden">
       <div class="modal-content">
-        <span class="close-btn">&times;</span>
+        <span class="close-btn" onclick="document.getElementById('order-modal').classList.add('hidden')">&times;</span>
         <h2>Place Order</h2>
         <form id="order-form">
           <input type="text" id="order-product" name="product" readonly />
-          <input type="text" id="order-name" name="name" placeholder="Your Name" required />
-          <input type="tel" id="order-phone" name="phone" placeholder="07XXXXXXXX" required />
-          <input type="email" id="order-email" name="email" placeholder="Email Address" required />
-          <textarea id="order-address" name="address" placeholder="Delivery Address" required></textarea>
-          <input type="number" id="order-quantity" name="quantity" min="1" value="1" required />
+
+          <div id="order-name-wrapper">
+            <input type="text" id="order-name" name="name" placeholder="Your Name" required />
+          </div>
+
+          <div>
+            <input type="tel" id="order-phone" name="phone" placeholder="07XXXXXXXX" />
+          </div>
+
+          <div id="order-email-wrapper">
+            <input type="email" id="order-email" name="email" placeholder="Email Address" required />
+          </div>
+
+          <div>
+            <textarea id="order-address" name="address" placeholder="Delivery Address" required></textarea>
+          </div>
+
+          <div>
+            <input type="number" id="order-quantity" name="quantity" min="1" value="1" required />
+          </div>
+
           <button type="submit">Submit Order</button>
         </form>
       </div>
     </div>
 
+    <!-- Shared Footer (loaded via partial) -->
+    <div id="global-footer"></div>
   </div>
 
-  <!-- Sticky Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Urban Elements Workshop | Nairobi, Kenya</p>
-  </footer>
-
+  <!-- JS Scripts -->
   <script src="assets/js/products.js"></script>
+  <script src="assets/js/global.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const [header, footer] = await Promise.all([
+          fetch('partials/header.html').then(r => r.text()),
+          fetch('partials/footer.html').then(r => r.text()),
+        ]);
+        document.getElementById('global-header').innerHTML = header;
+        document.getElementById('global-footer').innerHTML = footer;
+
+        if (typeof updateNavUI === 'function') updateNavUI();
+        if (typeof bindGlobalModals === 'function') bindGlobalModals();
+      } catch (err) {
+        console.error("Error loading header/footer partials:", err);
+      }
+    });
+  </script>
 </body>
 </html>
