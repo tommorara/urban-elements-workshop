@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         quantity: parseInt(document.getElementById('order-quantity').value, 10),
       };
 
+      console.log("Submitting order:", order);
+
       try {
         const response = await fetch('/api/orders', {
           method: 'POST',
