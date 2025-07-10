@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Account | Urban Elements Workshop</title>
+  <link rel="stylesheet" href="assets/css/index.css" />
+  <link rel="stylesheet" href="assets/css/my-account.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Global Header -->
+    <div id="global-header"></div>
+
+    <!-- Main Content -->
+    <main class="account-section">
+      <h2>My Account</h2>
+      <p>Welcome back! Here are your orders and custom requests:</p>
+
+      <div id="account-orders" class="orders-container">
+        <p class="loading">Loading your orders...</p>
+      </div>
+    </main>
+
+    <!-- Global Footer -->
+    <div id="global-footer"></div>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="assets/js/global.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('account-orders');
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        container.innerHTML = '<p class="error">⚠️ You must be logged in to view your orders.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/orders/user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Failed to load orders.');
+
+        const { orders = [], customRequests = [] } = data;
+
+        if (orders.length === 0 && customRequests.length === 0) {
+          container.innerHTML = '<p>No orders or custom requests found.</p>';
+          return;
+        }
+
+        container.innerHTML = ''; // Clear loading
+
+        // Regular Orders
+        if (orders.length > 0) {
+          const regHeader = document.createElement('h3');
+          regHeader.textContent = 'Regular Orders';
+          container.appendChild(regHeader);
+
+          orders.forEach(order => {
+            const div = document.createElement('div');
+            div.className = 'order-card';
+            div.innerHTML = `
+              <p><strong>Order ID:</strong> ${order._id}</p>
+              <p><strong>Status:</strong> ${order.status}</p>
+              <p><strong>Created:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+            `;
+            container.appendChild(div);
+          });
+        }
+
+        // Custom Requests
+        if (customRequests.length > 0) {
+          const customHeader = document.createElement('h3');
+          customHeader.textContent = 'Custom Requests';
+          container.appendChild(customHeader);
+
+          customRequests.forEach(order => {
+            const div = document.createElement('div');
+            div.className = 'order-card';
+            div.innerHTML = `
+              <h4>${order.title}</h4>
+              <p><strong>Materials:</strong> ${Array.isArray(order.material) ? order.material.join(', ') : order.material}</p>
+              <p><strong>Description:</strong> ${order.description}</p>
+              <p><strong>Status:</strong> ${order.status || 'Pending'}</p>
+              ${order.imageUrl ? `<img src="${order.imageUrl}" alt="Reference Image" class="order-image" />` : ''}
+            `;
+            container.appendChild(div);
+          });
+        }
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<p class="error">❌ ${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
