@@ -9,16 +9,13 @@ const protect = async (req, res, next) => {
 
   if (
     req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization.startsWith('Bearer ')
   ) {
     try {
-      // Get token from header
       token = req.headers.authorization.split(' ')[1];
 
-      // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from decoded token (exclude password)
       req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user) {
@@ -34,9 +31,7 @@ const protect = async (req, res, next) => {
         .status(401)
         .json({ message: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
+  } else {
     return res
       .status(401)
       .json({ message: 'Not authorized, no token provided' });
@@ -53,4 +48,3 @@ const isAdmin = (req, res, next) => {
 };
 
 module.exports = { protect, isAdmin };
-
