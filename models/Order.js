@@ -2,6 +2,11 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false, // Optional to allow guest orders
+  },
   product: {
     type: String,
     required: true,
@@ -10,11 +15,14 @@ const orderSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-   phone: {
-     type: String,
-     //required: true,
-   },
-  email: String,
+  phone: {
+    type: String,
+    // required: true, // Still optional unless needed
+  },
+  email: {
+    type: String,
+    trim: true,
+  },
   address: {
     type: String,
     required: true,
@@ -30,4 +38,4 @@ const orderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Order', orderSchema);
-
+// This schema allows for both logged-in users (with user ID) and guest orders (without user ID).
