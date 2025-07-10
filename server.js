@@ -23,6 +23,7 @@ const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const customRequestRoutes = require('./routes/customRequestRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const accountRoutes = require('./routes/accountRoutes');
 
 // Initialize app
 const app = express();
@@ -33,6 +34,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/', express.static(path.join(__dirname, 'frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
 
 // Serve uploaded images
@@ -44,6 +46,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/custom-requests', customRequestRoutes);
+app.use('/api', accountRoutes);
 
 // Root route
 app.get('/', (req, res) => {
