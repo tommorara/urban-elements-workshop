@@ -1,46 +1,35 @@
-// models/CustomRequest.js
-
 const mongoose = require('mongoose');
 
 const customRequestSchema = new mongoose.Schema({
-  name: {
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  itemName: {
     type: String,
-    required: [true, 'Your name is required'],
+    required: true,
     trim: true,
   },
-  email: {
+  details: {
     type: String,
-    required: [true, 'Your email is required'],
-    lowercase: true,
-    trim: true,
-    match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+    required: true,
   },
-  phone: {
-    type: String,
-    trim: true,
-  },
-  message: {
-    type: String,
-    required: [true, 'Please describe your custom design needs'],
-    trim: true,
-  },
-  projectDetails: { // Optional detailed fields for specific projects
-    type: String,
-    trim: true,
-  },
-  imageUploads: { // Array of paths to uploaded images
+  materials: {
     type: [String],
     default: [],
   },
+  referenceImageUrl: {
+    type: String,
+  },
   status: {
     type: String,
-    enum: ['new', 'contacted', 'in progress', 'completed', 'rejected'],
-    default: 'new',
+    enum: ['Pending', 'In Design', 'In Production', 'Completed'],
+    default: 'Pending',
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('CustomRequest', customRequestSchema);
+
