@@ -5,23 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Urban Elements Workshop | Home</title>
   <link rel="stylesheet" href="assets/css/index.css" />
+  <link rel="stylesheet" href="assets/css/shared.css" />
 </head>
 <body>
   <div class="page-wrapper">
 
-    <!-- Header -->
-    <header class="header">
-      <h1>Urban Elements</h1>
-      <p>Furniture crafted with wood, steel, mirrors, and glass</p>
-      <nav class="nav">
-        <ul>
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="products.html">Products</a></li>
-          <li><a href="custom.html">Custom Orders</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
+    <!-- Shared Header -->
+    <div id="global-header"></div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -50,40 +40,12 @@
       </div>
     </section>
 
+    <!-- Shared Footer -->
+    <div id="global-footer"></div>
+
   </div>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Urban Elements Workshop | Nairobi, Kenya</p>
-  </footer>
-  
-<div id="auth-overlay" class="modal hidden">
-  <div class="modal-content">
-    <span class="close-btn" onclick="toggleAuthModal(false)">&times;</span>
-
-    <!-- Login Form -->
-    <div id="login-form-wrapper">
-      <h2>Login</h2>
-      <form id="login-form">
-        <input type="email" id="login-email" placeholder="Email" required />
-        <input type="password" id="login-password" placeholder="Password" required />
-        <button type="submit">Login</button>
-        <p>No account? <a href="#" onclick="switchToRegister()">Register here</a></p>
-      </form>
-    </div>
-
-    <!-- Register Form -->
-    <div id="register-form-wrapper" class="hidden">
-      <h2>Register</h2>
-      <form id="register-form">
-        <input type="text" id="register-name" placeholder="Full Name" required />
-        <input type="email" id="register-email" placeholder="Email" required />
-        <input type="password" id="register-password" placeholder="Password" required minlength="6" />
-        <button type="submit">Create Account</button>
-        <p>Already have an account? <a href="#" onclick="switchToLogin()">Login here</a></p>
-      </form>
-    </div>
-  </div>
-</div>
+  <!-- Inject shared header, footer, and modal logic -->
+  <script src="assets/js/global.js"></script>
 </body>
 </html>
