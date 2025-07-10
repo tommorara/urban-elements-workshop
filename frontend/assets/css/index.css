@@ -25,6 +25,12 @@ main, .hero, .features {
   text-align: center;
 }
 
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
 .header h1 {
   margin: 0;
   font-size: 2rem;
@@ -35,12 +41,18 @@ main, .hero, .features {
   font-size: 1rem;
 }
 
+.nav {
+  background-color: #222;
+  padding-bottom: 20px;
+}
+
 .nav ul {
   list-style: none;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 30px;
-  padding-left: 0;
+  padding: 0;
   margin: 0;
 }
 
@@ -48,12 +60,17 @@ main, .hero, .features {
   color: white;
   text-decoration: none;
   font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 6px;
+  transition: background 0.3s ease;
 }
 
 .nav a:hover,
 .nav a.active {
-  text-decoration: underline;
+  background-color: #333;
+  text-decoration: none;
 }
+
 
 /* Hero Section */
 .hero {
